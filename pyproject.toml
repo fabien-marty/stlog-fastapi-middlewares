@@ -1,0 +1,16 @@
+[project]
+name = "stlog-fastapi-middlewares"
+version = "0.0.1"
+description = "FastAPI middlewares to improve logging with stlog library"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "starlette>=0.46.2",
+    "stlog>=0.4.3",
+]
+
+[dependency-groups]
+dev = [
+    "mypy>=1.15.0",
+    "ruff>=0.11.10",
+]
