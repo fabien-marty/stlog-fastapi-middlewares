@@ -1,4 +1,5 @@
 from dataclasses import field, dataclass
+import logging
 import os
 from typing import Any
 from starlette.applications import ASGIApp
@@ -7,9 +8,23 @@ import stlog
 import uuid
 
 
-@dataclass(kw_only=True)
+@dataclass()
 class LogContextMiddleware:
+    """
+    Middleware to add request context to structured logs.
+
+    Args:
+        app: The ASGI application to wrap.
+        logger: The logger to use.
+        add_request_id: Whether to add a (unique) request ID to structured logs.
+        add_pid: Whether to add a process ID to structured logs.
+        add_kvs: Additional key-value pairs to add to structured logs.
+        headers_to_kvs: Mapping of header names to key names in structured logs.
+        envs_to_kvs: Mapping of environment variable names to key names in structured logs.
+    """
+
     app: ASGIApp
+    logger: logging.LoggerAdapter
     add_request_id: bool = True
     add_pid: bool = False
     add_kvs: dict[str, Any] = field(default_factory=dict)

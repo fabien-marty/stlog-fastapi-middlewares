@@ -30,6 +30,10 @@ no-dirty: ## Check that the repository is clean
 		exit 1; \
 	fi
 
+.PHONY: doc
+doc: ## Generate the documentation
+	$(UV_RUN) jinja-tree .
+
 .PHONY: help
 help:
 	@# See https://marmelab.com/blog/2016/02/29/auto-documented-makefile.html

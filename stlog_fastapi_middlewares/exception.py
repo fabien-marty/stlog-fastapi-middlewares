@@ -7,6 +7,14 @@ from starlette.types import Receive, Scope, Send
 
 @dataclass
 class CustomExceptionHandlingMiddleware:
+    """
+    Middleware to log exceptions to structured logs.
+
+    Args:
+        app: The ASGI application to wrap.
+        logger: The structured logger to use.
+    """
+
     app: ASGIApp
     logger: logging.LoggerAdapter
 

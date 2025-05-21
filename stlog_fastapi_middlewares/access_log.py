@@ -85,6 +85,14 @@ class ParsedScope:
 
 @dataclass
 class AccessLogMiddleware:
+    """
+    Middleware to log access logs with a structured logger.
+
+    Args:
+        app: The ASGI application to wrap.
+        logger: The structured logger to use.
+    """
+
     app: ASGIApp
     logger: logging.LoggerAdapter
 
