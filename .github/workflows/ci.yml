@@ -34,3 +34,22 @@ jobs:
       - name: Check modified files (after clean)
         run: |
           make no-dirty
+
+  publish_pypi:
+    runs-on: ubuntu-24.04
+    needs: lint_and_test
+    if: startsWith(github.ref, 'refs/tags/v')
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@6b9c6063abd6010835644d4c2e1bef4cf5cd0fca # v6
+      - name: Publish on Pypi
+        run: |
+          VERSION=$(echo "${{ github.ref }}" | sed -e 's|refs/tags/v||')
+          echo "VERSION: $VERSION"
+          uvx --from=toml-cli toml set --toml-path=pyproject.toml project.version "$VERSION"
+          uv build
+          uv publish
+        env:
+          UV_PUBLISH_TOKEN: ${{ secrets.PYPI_TOKEN }}
