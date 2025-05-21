@@ -19,5 +19,49 @@ FastAPI/starlette middlewares to improve logging with [stlog](https://github.com
 ## Usage (with FastAPI)
 
 ```python
-{{ "cat usage.py"|shell() }}
+{{ "cat doc/usage.py"|shell() }}
+```
+
+## Reference
+
+We provide 3 independent middlewares.
+
+### `CustomExceptionHandlingMiddleware`
+
+This middleware logs exceptions to structured logs.
+
+No extra option is available.
+
+Example:
+
+```python
+{{ "cat doc/usage1.py"|shell() }}
+```
+
+### `AccessLogMiddleware`
+
+This middleware logs access to the application (to get access logs in JSON format for example).
+
+No extra option is available.
+
+Example:
+
+```python
+{{ "cat doc/usage2.py"|shell() }}
+```
+
+> [!NOTE]
+> As `FastAPI` or `uvicorn` already outputs some access logs, you may want to disable them!
+> For example, with `uvicorn`, you can use the `--no-access-log` flag.
+
+### `LogContextMiddleware`
+
+This middleware adds some request context to structured logs (think of automatic request id, process id...).
+
+There are multiple options to customize the middleware. See [the corresponding code for reference](stlog_fastapi_middlewares/context.py).
+
+Example:
+
+```python
+{{ "cat doc/usage3.py"|shell() }}
 ```

@@ -25,7 +25,7 @@ class CustomExceptionHandlingMiddleware:
         try:
             await self.app(scope, receive, send)
         except Exception:
-            self.logger.error("an exception occured", exc_info=True)
+            self.logger.error("an exception occurred", exc_info=True)
             await send(
                 {
                     "type": "http.response.start",

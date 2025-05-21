@@ -48,3 +48,132 @@ async def root():
     return {"message": "Hello World"}
 
 ```
+
+## Reference
+
+We provide 3 independent middlewares.
+
+### `CustomExceptionHandlingMiddleware`
+
+This middleware logs exceptions to structured logs.
+
+No extra option is available.
+
+Example:
+
+```python
+import stlog
+from fastapi import FastAPI
+from fastapi.concurrency import asynccontextmanager
+from stlog_fastapi_middlewares import (
+    CustomExceptionHandlingMiddleware,
+)
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    stlog.setup()
+    yield
+
+
+logger = stlog.getLogger(__name__)
+app = FastAPI(lifespan=lifespan)
+app.add_middleware(CustomExceptionHandlingMiddleware, logger=logger)
+
+
+@app.get("/exception")
+async def exception():
+    raise Exception("test")
+
+```
+
+### `AccessLogMiddleware`
+
+This middleware logs access to the application (to get access logs in JSON format for example).
+
+No extra option is available.
+
+Example:
+
+```python
+import stlog
+from fastapi import FastAPI
+from fastapi.concurrency import asynccontextmanager
+from stlog_fastapi_middlewares import (
+    AccessLogMiddleware,
+)
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    stlog.setup()
+    yield
+
+
+logger = stlog.getLogger(__name__)
+app = FastAPI(lifespan=lifespan)
+app.add_middleware(AccessLogMiddleware, logger=logger)
+
+
+@app.get("/")
+async def root():
+    return {"message": "Hello World"}
+
+```
+
+> [!NOTE]
+> As `FastAPI` or `uvicorn` already outputs some access logs, you may want to disable them!
+> For example, with `uvicorn`, you can use the `--no-access-log` flag.
+
+### `LogContextMiddleware`
+
+This middleware adds some request context to structured logs (think of automatic request id, process id...).
+
+There are multiple options to customize the middleware. See [the corresponding code for reference](stlog_fastapi_middlewares/context.py).
+
+Example:
+
+```python
+import os
+import stlog
+from fastapi import FastAPI
+from fastapi.concurrency import asynccontextmanager
+from stlog_fastapi_middlewares import (
+    LogContextMiddleware,
+)
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    stlog.setup()
+    yield
+
+
+logger = stlog.getLogger(__name__)
+app = FastAPI(lifespan=lifespan)
+app.add_middleware(
+    LogContextMiddleware,
+    logger=logger,
+    add_pid=True,
+    add_request_id=True,
+    env_to_kvs={"FOO", "foo", "BAR", "bar"},
+    headers_to_kvs={"X-Test-Id", "test_id"},
+)
+
+# Let's add some environment variables to test the middleware
+os.environ["FOO"] = "foo2"
+os.environ["BAR"] = "bar2"
+
+
+@app.get("/")
+async def root():
+    logger.info("hello world")
+    # => this call will output a log with the following extra keys:
+    # - foo
+    # - bar
+    # - pid
+    # - request_id
+    # - test_id (if the call is made with a X-Test-Id header)
+    return {"message": "Hello World"}
+
+```

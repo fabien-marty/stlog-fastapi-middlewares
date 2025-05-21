@@ -53,7 +53,9 @@ class LogContextMiddleware:
                 kwargs[v] = os.environ[k]
         headers = scope.get("headers", [])
         for name, value in headers:
-            if name.lower() in self.headers_to_kvs:
-                kwargs[self.headers_to_kvs[name.lower()]] = value.decode("utf-8")
+            if name.decode("utf-8").lower() in self.headers_to_kvs:
+                kwargs[self.headers_to_kvs[name.decode("utf-8").lower()]] = (
+                    value.decode("utf-8")
+                )
         with stlog.LogContext.bind(**kwargs):
             await self.app(scope, receive, send)

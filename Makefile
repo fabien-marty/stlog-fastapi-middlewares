@@ -13,6 +13,10 @@ else
 endif
 	$(UV_RUN) mypy --check-untyped-defs .
 
+.PHONY: test
+test: ## Test the code
+	$(UV_RUN) pytest .
+
 .PHONY: clean
 clean: ## Clean the repository
 	rm -Rf .venv .*_cache build dist htmlcov 
