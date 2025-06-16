@@ -91,7 +91,7 @@ async def exception():
 
 This middleware logs access to the application (to get access logs in JSON format for example).
 
-No extra option is available.
+You can optionally provide an `ignore_hook` option to ignore (for access log only!) some URLs.
 
 Example:
 

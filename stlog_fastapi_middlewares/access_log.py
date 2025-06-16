@@ -1,7 +1,7 @@
 import logging
 import time
 import typing
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from starlette.applications import ASGIApp
 from starlette.types import Receive, Scope, Send
@@ -95,10 +95,16 @@ class AccessLogMiddleware:
 
     app: ASGIApp
     logger: logging.LoggerAdapter
+    ignore_hook: typing.Callable[[Scope], bool] = field(
+        default_factory=lambda: lambda _: False
+    )
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
         if scope["type"] != "http":
             return await self.app(scope, receive, send)  # pragma: no cover
+        if self.ignore_hook(scope):
+            # ignored
+            return await self.app(scope, receive, send)
         parsed_scope = ParsedScope(scope=scope)
         response_interceptor = ResponseInterceptor(outer_send=send)
         try:
