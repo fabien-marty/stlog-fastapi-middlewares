@@ -27,22 +27,21 @@ class ResponseInterceptor:
 
     @property
     def content_length(self) -> int | None:
-        if self.response_message is None:
+        res = self.get_header_value("content-length")
+        if res is None:
             return None
-        for header in self.response_message.get("headers", []):
-            if header[0] == b"content-length":
-                try:
-                    return int(header[1])
-                except Exception:
-                    pass
-        return None
+        return int(res)
 
     @property
     def content_type(self) -> str | None:
+        return self.get_header_value("content-type")
+
+    def get_header_value(self, name: str) -> str | None:
         if self.response_message is None:
             return None
         for header in self.response_message.get("headers", []):
-            if header[0] == b"content-type":
+            print(header[0], name.encode("utf-8"))
+            if header[0] == name.encode("utf-8"):
                 try:
                     return header[1].decode("utf-8")
                 except Exception:
@@ -98,6 +97,12 @@ class AccessLogMiddleware:
     ignore_hook: typing.Callable[[Scope], bool] = field(
         default_factory=lambda: lambda _: False
     )
+    add_duration_s: bool = field(default=True)
+    add_duration_ms: bool = field(default=False)
+    add_duration_us: bool = field(default=False)
+    add_response_content_length: bool = field(default=True)
+    add_response_content_type: bool = field(default=True)
+    add_response_headers: dict[str, str] = field(default_factory=dict)
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
         if scope["type"] != "http":
@@ -117,12 +122,27 @@ class AccessLogMiddleware:
                 log_fn = self.logger.warning
             else:
                 log_fn = self.logger.info
-            log_fn(
-                "access log",
-                method=parsed_scope.method,
-                full_path=parsed_scope.full_path,
-                status_code=response_interceptor.status_code,
-                duration=duration,
-                response_content_length=response_interceptor.content_length,
-                response_content_type=response_interceptor.content_type,
-            )
+            kwargs: dict[str, typing.Any] = {
+                "method": parsed_scope.method,
+                "full_path": parsed_scope.full_path,
+                "status_code": response_interceptor.status_code,
+            }
+            if self.add_duration_s:
+                kwargs["duration"] = duration
+            if self.add_duration_ms:
+                kwargs["duration_ms"] = duration * 1000.0
+            if self.add_duration_us:
+                kwargs["duration_us"] = int(duration * 1000000)
+            if self.add_response_content_length:
+                kwargs["response_content_length"] = response_interceptor.content_length
+            if self.add_response_content_type:
+                kwargs["response_content_type"] = response_interceptor.content_type
+            if self.add_response_content_length:
+                kwargs["response_content_length"] = response_interceptor.content_length
+            if self.add_response_content_type:
+                kwargs["response_content_type"] = response_interceptor.content_type
+            for k, v in self.add_response_headers.items():
+                value = response_interceptor.get_header_value(k)
+                if value is not None:
+                    kwargs[v] = value
+            log_fn("access log", **kwargs)
