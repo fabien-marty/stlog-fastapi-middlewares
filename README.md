@@ -156,7 +156,7 @@ app.add_middleware(
     logger=logger,
     add_pid=True,
     add_request_id=True,
-    env_to_kvs={"FOO", "foo", "BAR", "bar"},
+    envs_to_kvs={"FOO", "foo", "BAR", "bar"},
     headers_to_kvs={"X-Test-Id", "test_id"},
 )
 
