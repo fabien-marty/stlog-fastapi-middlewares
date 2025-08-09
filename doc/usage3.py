@@ -20,8 +20,8 @@ app.add_middleware(
     logger=logger,
     add_pid=True,
     add_request_id=True,
-    envs_to_kvs={"FOO", "foo", "BAR", "bar"},
-    headers_to_kvs={"X-Test-Id", "test_id"},
+    envs_to_kvs={"FOO": "foo", "BAR": "bar"},
+    headers_to_kvs={"X-Test-Id": "test_id"},
 )
 
 # Let's add some environment variables to test the middleware
