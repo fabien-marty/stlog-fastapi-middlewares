@@ -40,8 +40,7 @@ class ResponseInterceptor:
         if self.response_message is None:
             return None
         for header in self.response_message.get("headers", []):
-            print(header[0], name.encode("utf-8"))
-            if header[0] == name.encode("utf-8"):
+            if header[0] == name.lower().encode("utf-8"):
                 try:
                     return header[1].decode("utf-8")
                 except Exception:
