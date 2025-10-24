@@ -136,10 +136,6 @@ class AccessLogMiddleware:
                 kwargs["response_content_length"] = response_interceptor.content_length
             if self.add_response_content_type:
                 kwargs["response_content_type"] = response_interceptor.content_type
-            if self.add_response_content_length:
-                kwargs["response_content_length"] = response_interceptor.content_length
-            if self.add_response_content_type:
-                kwargs["response_content_type"] = response_interceptor.content_type
             for k, v in self.add_response_headers.items():
                 value = response_interceptor.get_header_value(k)
                 if value is not None:
