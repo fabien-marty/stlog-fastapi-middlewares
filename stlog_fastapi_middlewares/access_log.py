@@ -144,4 +144,6 @@ class AccessLogMiddleware:
                 value = response_interceptor.get_header_value(k)
                 if value is not None:
                     kwargs[v] = value
+            for k, v in scope.get("state", {}).get("access_log_context").items():
+                kwargs[k] = v
             log_fn("access log", **kwargs)
